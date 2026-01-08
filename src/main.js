@@ -29,6 +29,7 @@ const wifiFlag = document.getElementById('wifi-flag');
 const wifiSsid = document.getElementById('wifi-ssid');
 const wifiPass = document.getElementById('wifi-pass');
 const wifiEncryption = document.getElementById('wifi-encryption');
+const copyPassBtn = document.getElementById('copy-pass-btn');
 
 function parsePayload(data) {
     if (data.startsWith('http://') || data.startsWith('https://')) {
@@ -50,6 +51,13 @@ function parsePayload(data) {
         wifiSsid.textContent = ssid;
         wifiPass.textContent = pass;
         wifiEncryption.textContent = type;
+        
+        // Show copy password button if password exists
+        if (pass !== '---') {
+            copyPassBtn.classList.remove('hidden');
+        } else {
+            copyPassBtn.classList.add('hidden');
+        }
     } else {
         wifiGrid.classList.add('hidden');
         wifiFlag.classList.add('hidden');
@@ -152,6 +160,8 @@ document.getElementById('clear-btn').addEventListener('click', () => {
     awaitingText.textContent = "Awaiting input...";
     statusBadge.textContent = "Waiting";
     statusBadge.className = "px-2 py-0.5 border border-green-900 text-[9px] uppercase";
+    // Hide copy pass button
+    copyPassBtn.classList.add('hidden');
     // Clear canvas
     ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 });
@@ -169,6 +179,22 @@ document.getElementById('copy-btn').addEventListener('click', () => {
     setTimeout(() => {
         document.getElementById('copy-btn').textContent = originalText;
     }, 1000);
+});
+
+// Copy password button
+copyPassBtn.addEventListener('click', () => {
+    const password = wifiPass.textContent;
+    if (password && password !== '---') {
+        navigator.clipboard.writeText(password).then(() => {
+            const originalHTML = copyPassBtn.innerHTML;
+            copyPassBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            setTimeout(() => {
+                copyPassBtn.innerHTML = originalHTML;
+            }, 1000);
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+        });
+    }
 });
 
 // Camera functionality
